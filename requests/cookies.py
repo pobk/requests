@@ -12,6 +12,7 @@ requests.utils imports from here, so be careful with imports.
 import copy
 import time
 import calendar
+import re
 
 from ._internal_utils import to_native_string
 from .compat import cookielib, urlparse, urlunparse, Morsel, MutableMapping
@@ -342,7 +343,9 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
     def set_cookie(self, cookie, *args, **kwargs):
         if hasattr(cookie.value, 'startswith') and cookie.value.startswith('"') and cookie.value.endswith('"'):
-            cookie.value = cookie.value.replace('\\"', '')
+            matches = re.match(r'\"(.*)\"', cookie.value)
+            groups = matches.groups()
+            cookie.value = groups[0]
         return super(RequestsCookieJar, self).set_cookie(cookie, *args, **kwargs)
 
     def update(self, other):
